@@ -1,0 +1,15 @@
+meta {
+  name: Stop Recording
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8080/testing/my-tenant/record/abc123/stop
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Test Proxy REC
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8081/my-tenant/randommer/name
+  body: formUrlEncoded
+  auth: inherit
+}
+
+headers {
+  X-Correlation-ID: abc123
+}
+
+body:form-urlencoded {
+  type: fullname
+  number: 1
+}
