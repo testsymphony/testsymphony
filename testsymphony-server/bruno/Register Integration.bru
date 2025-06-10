@@ -1,0 +1,22 @@
+meta {
+  name: Register Integration
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/testing/my-tenant/http/integration/register
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "serviceId": "randommer",
+    "targetBaseUrl": "https://randommer.io"
+  }
+}

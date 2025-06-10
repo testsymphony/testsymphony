@@ -1,0 +1,22 @@
+meta {
+  name: Start Recording
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8080/testing/my-tenant/record/start
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "recordingType": "CORRELATION_ID",
+    "recordingId": "abc123"
+  }
+}
