@@ -1,20 +1,23 @@
 package com.github.ulyssesrr.testsymphony.cli.client;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.service.annotation.PostExchange;
-
 import com.github.ulyssesrr.testsymphony.dto.StartRecordingDTO;
 import com.github.ulyssesrr.testsymphony.dto.TestSymphonyRecordingDTO;
 
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+
 public interface TestSymphonyClient {
     
-    @PostExchange("/testing/{appId}/record/start")
-	StartRecordingDTO startRecording(@PathVariable String appId, @RequestBody StartRecordingDTO startRecordingDTO);
+    @POST
+    @Path("/testing/{appId}/record/start")
+	StartRecordingDTO startRecording(@PathParam("appId") String appId, StartRecordingDTO startRecordingDTO);
 
-    @PostExchange("/testing/{appId}/record/{recordingId}/stop")
-    TestSymphonyRecordingDTO stopRecording(@PathVariable String appId, @PathVariable String recordingId);
+    @POST
+    @Path("/testing/{appId}/record/{recordingId}/stop")
+    TestSymphonyRecordingDTO stopRecording(@PathParam("appId") String appId, String recordingId);
 
-    @PostExchange("/{appId}/record/replay")
-    void replayRecording(@PathVariable String appId, @RequestBody TestSymphonyRecordingDTO recordingDTO);
+    @POST
+    @Path("/{appId}/record/replay")
+    void replayRecording(@PathParam("appId") String appId, TestSymphonyRecordingDTO recordingDTO);
 }

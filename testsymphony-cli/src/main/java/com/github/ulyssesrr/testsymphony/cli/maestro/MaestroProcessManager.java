@@ -1,11 +1,9 @@
 package com.github.ulyssesrr.testsymphony.cli.maestro;
 
-import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Component
+
 public class MaestroProcessManager {
 
     private final ReentrantLock lock = new ReentrantLock();
