@@ -1,14 +1,15 @@
 package com.github.ulyssesrr.testsymphony.cli;
 
+import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.runtime.QuarkusApplication;
-import io.quarkus.runtime.annotations.QuarkusMain;
 import picocli.CommandLine;
 
 import jakarta.inject.Inject;
 
-@QuarkusMain
-@CommandLine.Command(name = "demo", mixinStandardHelpOptions = true)
+@TopCommand
+@CommandLine.Command(mixinStandardHelpOptions = true, subcommands = {RecordCommand.class, GoodByeCommand.class})
 public class ExampleApp implements Runnable, QuarkusApplication {
+    
     @Inject
     CommandLine.IFactory factory; 
 

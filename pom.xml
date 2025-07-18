@@ -12,26 +12,19 @@
 
     <artifactId>testsymphony-root</artifactId>
     <packaging>pom</packaging>
-
+    
     <profiles>
         <profile>
-            <id>full</id>
+            <id>all</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-        <module>testsymphony-client-dto</module>
-        <module>testsymphony-server</module>
-        <module>testsymphony-cli</module>
+                <module>testsymphony-server</module>
+                <module>testsymphony-client-dto</module>
+                <module>testsymphony-cli</module>
+                <module>testsymphony-app-runtime-hibernate5</module>
             </modules>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>${quarkus.platform.group-id}</groupId>
-                        <artifactId>quarkus-maven-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>testsymphony-cli</id>

@@ -10,9 +10,9 @@
         <relativePath>../testsymphony-parent</relativePath>
     </parent>
 
-	<artifactId>testsymphony-client-dto</artifactId>
-	<name>testsymphony-client-dto</name>
-	<description>testsymphony-client-dto</description>
+	<artifactId>testsymphony-app-runtime-hibernate5</artifactId>
+	<name>testsymphony-app-runtime-hibernate5</name>
+	<description>testsymphony-app-runtime-hibernate5</description>
 	
 	<dependencies>
 		<dependency>
@@ -23,15 +23,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.wiremock</groupId>
-			<artifactId>wiremock-standalone</artifactId>
-			<version>3.13.0</version>
-			<scope>compile</scope>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>5.0.0.Final</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
-    <build>
-        <finalName>testsymphony-client-dto</finalName>
+	<build>
+        <finalName>testsymphony-app-runtime-hibernate5</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -41,10 +41,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>io.smallrye</groupId>
-                <artifactId>jandex-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
