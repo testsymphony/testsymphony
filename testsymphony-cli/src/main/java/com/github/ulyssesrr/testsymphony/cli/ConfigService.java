@@ -1,5 +1,6 @@
 package com.github.ulyssesrr.testsymphony.cli;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +34,10 @@ public class ConfigService {
 
     private TSConfigModel loadConfig(Path path) throws StreamReadException, DatabindException, IOException {
         return yamlMapper.readValue(path.toFile(), TSConfigModel.class);
+    }
+
+    public <T> T loadFile(File file, Class<T> clazz) throws StreamReadException, DatabindException, IOException {
+        return yamlMapper.readValue(file, clazz);
     }
 
     private Path findNearestConfig() {

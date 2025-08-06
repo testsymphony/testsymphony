@@ -7,7 +7,7 @@ import picocli.CommandLine;
 import jakarta.inject.Inject;
 
 @TopCommand
-@CommandLine.Command(mixinStandardHelpOptions = true, subcommands = {RecordCommand.class, GoodByeCommand.class})
+@CommandLine.Command(mixinStandardHelpOptions = true, subcommands = {RecordCommand.class, TstCommand.class})
 public class ExampleApp implements Runnable, QuarkusApplication {
     
     @Inject
