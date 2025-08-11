@@ -3,15 +3,27 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.github.ulyssesrr</groupId>
-        <artifactId>testsymphony-parent</artifactId>
-        <relativePath>./testsymphony-parent</relativePath>
-        <version>0.0.1-SNAPSHOT</version>
-    </parent>
 
+    <groupId>com.github.ulyssesrr</groupId>
     <artifactId>testsymphony-root</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <properties>
+		<junit.version>5.9.3</junit.version>
+    </properties>
+    
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
+				<version>${junit.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+        </dependencies>
+    </dependencyManagement>
     
     <profiles>
         <profile>
@@ -23,6 +35,8 @@
                 <module>testsymphony-server</module>
                 <module>testsymphony-client-dto</module>
                 <module>testsymphony-cli</module>
+                <module>testsymphony-agent</module>
+                <module>testsymphony-agent-bootstrap</module>
                 <module>testsymphony-app-runtime-hibernate5</module>
             </modules>
         </profile>
@@ -31,6 +45,13 @@
             <modules>
                 <module>testsymphony-client-dto</module>
                 <module>testsymphony-cli</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>testsymphony-agent</id>
+            <modules>
+                <module>testsymphony-agent</module>
+                <module>testsymphony-agent-bootstrap</module>
             </modules>
         </profile>
     </profiles>

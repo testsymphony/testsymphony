@@ -5,9 +5,9 @@
 
 	<parent>
 		<groupId>com.github.ulyssesrr</groupId>
-        <artifactId>testsymphony-parent</artifactId>
+        <artifactId>testsymphony-quarkus-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../testsymphony-parent</relativePath>
+        <relativePath>../testsymphony-quarkus-parent</relativePath>
     </parent>
 
 	<artifactId>testsymphony-client-dto</artifactId>
