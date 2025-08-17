@@ -39,22 +39,22 @@ public class RecordingServeEventListener implements ServeEventListener {
 
     public void startRecording(StartRecordingDTO startRecordingDTO) {
         RecordingType recordingType = startRecordingDTO.getRecordingType();
-        if (RecordingType.CORRELATION_ID.equals(recordingType)) {
-            correlationRecordingServeEventListener.startRecording(startRecordingDTO.getRecordingId());
+        if (RecordingType.HEADER_FILTER.equals(recordingType)) {
+            correlationRecordingServeEventListener.startRecording(startRecordingDTO.getTestId());
         } else if (RecordingType.GLOBAL.equals(recordingType)) {
-            globalRecordingServeEventListener.startRecording(startRecordingDTO.getRecordingId());
+            globalRecordingServeEventListener.startRecording(startRecordingDTO.getTestId());
         } else {
             throw new UnsupportedOperationException("Missing implementation for RecordingType: "+recordingType);
         }
-        recordings.put(startRecordingDTO.getRecordingId(), recordingType);
+        recordings.put(startRecordingDTO.getTestId(), recordingType);
     }
 
-    public List<StubMapping> stopRecording(String recordingId) {
-        RecordingType recordingType = recordings.remove(recordingId);
-        if (RecordingType.CORRELATION_ID.equals(recordingType)) {
-            return correlationRecordingServeEventListener.stopRecording(recordingId);
+    public List<StubMapping> stopRecording(String testId) {
+        RecordingType recordingType = recordings.remove(testId);
+        if (RecordingType.HEADER_FILTER.equals(recordingType)) {
+            return correlationRecordingServeEventListener.stopRecording(testId);
         } else if (RecordingType.GLOBAL.equals(recordingType)) {
-            return globalRecordingServeEventListener.stopRecording(recordingId);
+            return globalRecordingServeEventListener.stopRecording(testId);
         } else {
             throw new UnsupportedOperationException("Missing implementation for RecordingType: "+recordingType);
         }

@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
+import com.github.ulyssesrr.testsymphony.cli.client.TSClient;
 import com.github.ulyssesrr.testsymphony.cli.client.TSClientProducer;
 import com.github.ulyssesrr.testsymphony.cli.config.TSConfigModel;
-import com.github.ulyssesrr.testsymphony.cli.config.TSEnvModel;
 import com.github.ulyssesrr.testsymphony.cli.config.TSTestModel;
 import com.github.ulyssesrr.testsymphony.cli.maestro.MaestroRunner;
 import com.github.ulyssesrr.testsymphony.cli.wiremock.TSWiremockMappingsSource;
@@ -23,8 +23,6 @@ public class TstCommand implements Runnable {
 
     private final ConfigService configService;
 
-    private final EnvironmentService environmentService;
-
     private final TSClientProducer clientManager;
 
     private final MaestroRunner maestroRunner;
@@ -35,7 +33,7 @@ public class TstCommand implements Runnable {
     @Override
     public void run() {
         TSConfigModel config = configService.getConfig();
-        TSEnvModel targetEnvironment = environmentService.getTargetEnvironment();
+        TSClient client = clientManager.getClient(config.getServer());
 
         TestSymphonyRecordingDTO recordingDTO = new TestSymphonyRecordingDTO();
         WiremockRecordingDTO wiremockRecordingDTO = new WiremockRecordingDTO();
@@ -50,8 +48,7 @@ public class TstCommand implements Runnable {
                 wiremockRecordingDTO.setStubMappings(stubMappings.getAll());
                 recordingDTO.setWiremock(wiremockRecordingDTO);
 
-                clientManager.getClient(targetEnvironment).replayRecording(config.getAppId(), recordingDTO);
-
+                client.replayRecording(config.getAppId(), recordingDTO);
                 if (testModel.getMaestro() != null) {
                     maestroRunner.runTest(testWorkingDir, testModel.getMaestro());
                 }

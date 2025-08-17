@@ -22,8 +22,12 @@ public class TSWiremockMappingsSource implements MappingsSource {
         mappingsSource = new JsonFileMappingsSource(fileSource.child(WireMockApp.MAPPINGS_ROOT), filenameMaker);
     }
 
+    public TSWiremockMappingsSource(String rootDirectory) {
+        this(new File(rootDirectory));
+    }
+
     public TSWiremockMappingsSource() {
-        this(new File("wiremock"));
+        this("wiremock");
     }
 
 }

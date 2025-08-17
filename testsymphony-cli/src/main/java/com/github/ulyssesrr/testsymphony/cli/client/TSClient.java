@@ -14,8 +14,8 @@ public interface TSClient {
 	StartRecordingDTO startRecording(@PathParam("appId") String appId, StartRecordingDTO startRecordingDTO);
 
     @POST
-    @Path("/testing/{appId}/record/{recordingId}/stop")
-    TestSymphonyRecordingDTO stopRecording(@PathParam("appId") String appId, String recordingId);
+    @Path("/testing/{appId}/record/{testId}/stop")
+    TestSymphonyRecordingDTO stopRecording(@PathParam("appId") String appId, String testId);
 
     @POST
     @Path("/{appId}/record/replay")

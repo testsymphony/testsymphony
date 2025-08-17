@@ -40,12 +40,12 @@ public class GlobalRecordingServeEventListener implements ServeEventListener {
         return GlobalRecordingServeEventListener.class.getName();
     }
 
-    public void startRecording(String recordingId) {
-        recordings.put(recordingId, new ConcurrentLinkedQueue<>());
+    public void startRecording(String testId) {
+        recordings.put(testId, new ConcurrentLinkedQueue<>());
     }
 
-    public List<StubMapping> stopRecording(String recordingId) {
-        List<ServeEvent> serveEvents = new ArrayList<>(recordings.remove(recordingId));
+    public List<StubMapping> stopRecording(String testId) {
+        List<ServeEvent> serveEvents = new ArrayList<>(recordings.remove(testId));
 
         Admin admin = (Admin) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class<?>[] { Admin.class },
                 (InvocationHandler) (proxy, method, args) -> {
@@ -57,7 +57,7 @@ public class GlobalRecordingServeEventListener implements ServeEventListener {
                 .takeSnapshot(serveEvents, RecordSpec.DEFAULTS);
         List<StubMapping> recordedStubMappings = snapshot.getStubMappings();
         recordedStubMappings.forEach(stubMapping -> {
-            stubMapping.setScenarioName(recordingId);
+            stubMapping.getMetadata();
         });
 
         return recordedStubMappings;

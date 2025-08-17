@@ -2,9 +2,9 @@ package com.github.ulyssesrr.testsymphony.cli;
 
 import java.util.Optional;
 
+import com.github.ulyssesrr.testsymphony.cli.client.TSClient;
 import com.github.ulyssesrr.testsymphony.cli.client.TSClientProducer;
 import com.github.ulyssesrr.testsymphony.cli.config.TSConfigModel;
-import com.github.ulyssesrr.testsymphony.cli.config.TSEnvModel;
 import com.github.ulyssesrr.testsymphony.cli.helper.InteractiveConfirmation;
 import com.github.ulyssesrr.testsymphony.cli.wiremock.TSWiremockMappingsSource;
 import com.github.ulyssesrr.testsymphony.dto.RecordingType;
@@ -14,6 +14,7 @@ import com.github.ulyssesrr.testsymphony.dto.TestSymphonyRecordingDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "by-correlation", description = "Record filtering on X-Correlation-ID header.")
@@ -23,9 +24,10 @@ public class RecordByCorrelationIdSubCommand implements Runnable {
     @Parameters(arity = "1..1", paramLabel = "<X-Correlation-ID>", description = "X-Correlation-ID value for filtering requests to record.")
     private String correlationId;
 
-    private final ConfigService configService;
+    @Option(names = { "-h", "--header" }, paramLabel = "HeaderName", description = "Header for filtering requests.")
+    String testIdHeaderName = "X-Correlation-ID";
 
-    private final EnvironmentService environmentService;
+    private final ConfigService configService;
     
     private final TSClientProducer clientManager;
 
@@ -37,12 +39,14 @@ public class RecordByCorrelationIdSubCommand implements Runnable {
     public void run() {
 
         StartRecordingDTO startRecordingDTO = new StartRecordingDTO();
-        startRecordingDTO.setRecordingId(correlationId);
-        startRecordingDTO.setRecordingType(RecordingType.CORRELATION_ID);
+        startRecordingDTO.setRecordingType(RecordingType.HEADER_FILTER);
+        startRecordingDTO.setHeaderName(testIdHeaderName);
+        startRecordingDTO.setTestId(correlationId);
 
         TSConfigModel config = configService.getConfig();
-        TSEnvModel targetEnvironment = environmentService.getTargetEnvironment();
-        clientManager.getClient(targetEnvironment).startRecording(config.getAppId(), startRecordingDTO);
+
+        TSClient client = clientManager.getClient(config.getServer());
+        client.startRecording(config.getAppId(), startRecordingDTO);
         System.out.println("Recording started.");
         System.out.println("Recording X-Correlation-ID: "+correlationId);
         System.out.println("Press 's' to stop.");
@@ -51,7 +55,7 @@ public class RecordByCorrelationIdSubCommand implements Runnable {
             int ch = System.in.read();
             if (ch == 's' || ch == 'S') {
                 if (interactiveConfirmation.confirmStop()) {
-                    TestSymphonyRecordingDTO recordingDTO = clientManager.getClient(targetEnvironment).stopRecording(config.getAppId(), correlationId);
+                    TestSymphonyRecordingDTO recordingDTO = client.stopRecording(config.getAppId(), correlationId);
                     
                     
                     Optional.ofNullable(recordingDTO)

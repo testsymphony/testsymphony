@@ -33,11 +33,11 @@ public class CorrelationRecordingServeEventListener implements ServeEventListene
     @Override
     public void afterComplete(ServeEvent serveEvent, Parameters parameters) {
         log.info("Serve event: "+serveEvent.getRequest());
-        String recordingId = serveEvent.getRequest().getHeader("X-Correlation-ID");
-        if (recordingId != null) {
-            recordings.computeIfPresent(recordingId, (k, v) -> {
+        String testId = serveEvent.getRequest().getHeader("X-Correlation-ID");
+        if (testId != null) {
+            recordings.computeIfPresent(testId, (k, v) -> {
                 v.add(serveEvent);
-                log.info("RECORDED: "+recordingId+" | Event: "+serveEvent);
+                log.info("RECORDED: "+testId+" | Event: "+serveEvent);
                 return v;
             });
         }
@@ -48,12 +48,12 @@ public class CorrelationRecordingServeEventListener implements ServeEventListene
         return CorrelationRecordingServeEventListener.class.getName();
     }
 
-    public void startRecording(String recordingId) {
-        recordings.put(recordingId, new ArrayList<>());
+    public void startRecording(String testId) {
+        recordings.put(testId, new ArrayList<>());
     }
 
-    public List<StubMapping> stopRecording(String recordingId) {
-        List<ServeEvent> serveEvents = recordings.remove(recordingId);
+    public List<StubMapping> stopRecording(String testId) {
+        List<ServeEvent> serveEvents = recordings.remove(testId);
 
         return recorder.takeSnapshot(serveEvents, RecordSpec.DEFAULTS);
     }

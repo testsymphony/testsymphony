@@ -60,9 +60,9 @@ public class RestMockController {
         return startRecordingDTO;
     }
 
-    @PostMapping("/{appId}/record/{recordingId}/stop")
-    public TestSymphonyRecordingDTO stopRecording(@PathVariable String appId, @PathVariable String recordingId) {
-        List<StubMapping> stubMappings = recordingServeEventListener.stopRecording(recordingId);
+    @PostMapping("/{appId}/record/{testId}/stop")
+    public TestSymphonyRecordingDTO stopRecording(@PathVariable String appId, @PathVariable String testId) {
+        List<StubMapping> stubMappings = recordingServeEventListener.stopRecording(testId);
 
         WiremockRecordingDTO wiremockDTO = new WiremockRecordingDTO(stubMappings);
         return new TestSymphonyRecordingDTO(wiremockDTO);

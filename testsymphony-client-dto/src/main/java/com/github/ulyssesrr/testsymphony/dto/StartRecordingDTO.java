@@ -7,5 +7,7 @@ public class StartRecordingDTO {
     
     private RecordingType recordingType;
 
-    private String recordingId;
+    private String testId;
+
+    private String headerName;
 }
