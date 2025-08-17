@@ -40,7 +40,7 @@ public class RecordingServeEventListener implements ServeEventListener {
     public void startRecording(StartRecordingDTO startRecordingDTO) {
         RecordingType recordingType = startRecordingDTO.getRecordingType();
         if (RecordingType.HEADER_FILTER.equals(recordingType)) {
-            correlationRecordingServeEventListener.startRecording(startRecordingDTO.getTestId());
+            correlationRecordingServeEventListener.startRecording(startRecordingDTO.getHeaderName(), startRecordingDTO.getTestId());
         } else if (RecordingType.GLOBAL.equals(recordingType)) {
             globalRecordingServeEventListener.startRecording(startRecordingDTO.getTestId());
         } else {
