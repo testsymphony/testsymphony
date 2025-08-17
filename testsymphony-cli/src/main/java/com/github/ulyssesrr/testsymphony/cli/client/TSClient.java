@@ -1,7 +1,7 @@
 package com.github.ulyssesrr.testsymphony.cli.client;
 
 import com.github.ulyssesrr.testsymphony.dto.StartRecordingDTO;
-import com.github.ulyssesrr.testsymphony.dto.TestSymphonyRecordingDTO;
+import com.github.ulyssesrr.testsymphony.dto.TSRecordingDTO;
 
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -15,9 +15,9 @@ public interface TSClient {
 
     @POST
     @Path("/testing/{appId}/record/{testId}/stop")
-    TestSymphonyRecordingDTO stopRecording(@PathParam("appId") String appId, String testId);
+    TSRecordingDTO stopRecording(@PathParam("appId") String appId, String testId);
 
     @POST
     @Path("/{appId}/record/replay")
-    void replayRecording(@PathParam("appId") String appId, TestSymphonyRecordingDTO recordingDTO);
+    void replayRecording(@PathParam("appId") String appId, TSRecordingDTO recordingDTO);
 }

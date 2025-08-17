@@ -10,7 +10,7 @@ import com.github.ulyssesrr.testsymphony.cli.config.TSConfigModel;
 import com.github.ulyssesrr.testsymphony.cli.config.TSTestModel;
 import com.github.ulyssesrr.testsymphony.cli.maestro.MaestroRunner;
 import com.github.ulyssesrr.testsymphony.cli.wiremock.TSWiremockMappingsSource;
-import com.github.ulyssesrr.testsymphony.dto.TestSymphonyRecordingDTO;
+import com.github.ulyssesrr.testsymphony.dto.TSRecordingDTO;
 import com.github.ulyssesrr.testsymphony.dto.WiremockRecordingDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class TstCommand implements Runnable {
         TSConfigModel config = configService.getConfig();
         TSClient client = clientManager.getClient(config.getServer());
 
-        TestSymphonyRecordingDTO recordingDTO = new TestSymphonyRecordingDTO();
+        TSRecordingDTO recordingDTO = new TSRecordingDTO();
         WiremockRecordingDTO wiremockRecordingDTO = new WiremockRecordingDTO();
 
         for (File file : files) {

@@ -36,7 +36,7 @@ public class HttpClient4AgentIntegrationTest {
 
         ByteBuddyAgent.install();
         Instrumentation instrumentation = ByteBuddyAgent.getInstrumentation();
-        TestSymphonyAgent.premain(null, instrumentation);
+        TSAgent.premain(null, instrumentation);
     }
 
     @AfterEach

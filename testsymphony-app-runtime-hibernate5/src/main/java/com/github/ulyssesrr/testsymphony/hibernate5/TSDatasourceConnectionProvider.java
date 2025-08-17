@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
 
-public class TestSymphonyDatasourceConnectionProvider extends DatasourceConnectionProviderImpl {
+public class TSDatasourceConnectionProvider extends DatasourceConnectionProviderImpl {
 
     @Override
     public Connection getConnection() throws SQLException {

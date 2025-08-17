@@ -25,7 +25,7 @@
               <transformers>
                 <transformer>
                   <manifestEntries>
-                    <Premain-Class>com.github.ulyssesrr.testsymphony.agent.TestSymphonyAgent</Premain-Class>
+                    <Premain-Class>com.github.ulyssesrr.testsymphony.agent.TSAgent</Premain-Class>
                     <Can-Redefine-Classes>true</Can-Redefine-Classes>
                     <Can-Retransform-Classes>true</Can-Retransform-Classes>
                   </manifestEntries>

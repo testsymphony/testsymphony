@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.ulyssesrr.testsymphony.dto.RegisterRestIntegrationReqDTO;
 import com.github.ulyssesrr.testsymphony.dto.StartRecordingDTO;
-import com.github.ulyssesrr.testsymphony.dto.TestSymphonyRecordingDTO;
+import com.github.ulyssesrr.testsymphony.dto.TSRecordingDTO;
 import com.github.ulyssesrr.testsymphony.dto.WiremockRecordingDTO;
 
 import jakarta.validation.constraints.NotNull;
@@ -59,16 +59,16 @@ public class RestMockController {
     }
 
     @PostMapping("/{appId}/record/{testId}/stop")
-    public TestSymphonyRecordingDTO stopRecording(@PathVariable String appId, @PathVariable String testId) {
+    public TSRecordingDTO stopRecording(@PathVariable String appId, @PathVariable String testId) {
         List<StubMapping> stubMappings = recordingServeEventListener.stopRecording(testId);
 
         WiremockRecordingDTO wiremockDTO = new WiremockRecordingDTO(stubMappings);
-        return new TestSymphonyRecordingDTO(wiremockDTO);
+        return new TSRecordingDTO(wiremockDTO);
     }
 
     @PostMapping("/{appId}/record/replay")
     public void replayRecording(@PathVariable String appId,
-            @RequestBody @NotNull TestSymphonyRecordingDTO recordingDTO) {
+            @RequestBody @NotNull TSRecordingDTO recordingDTO) {
         Optional.ofNullable(recordingDTO.getWiremock()).map(w -> w.getStubMappings()).ifPresent((stubMappings) -> {
             for (StubMapping stubMapping : stubMappings) {
                 this.wireMockClient.register(stubMapping);

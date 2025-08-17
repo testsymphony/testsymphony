@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestSymphonyRecordingDTO {
+public class TSRecordingDTO {
     
     private WiremockRecordingDTO wiremock;
 }

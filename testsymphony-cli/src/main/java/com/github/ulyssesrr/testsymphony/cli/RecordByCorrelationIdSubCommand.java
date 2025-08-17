@@ -9,7 +9,7 @@ import com.github.ulyssesrr.testsymphony.cli.helper.InteractiveConfirmation;
 import com.github.ulyssesrr.testsymphony.cli.wiremock.TSWiremockMappingsSource;
 import com.github.ulyssesrr.testsymphony.dto.RecordingType;
 import com.github.ulyssesrr.testsymphony.dto.StartRecordingDTO;
-import com.github.ulyssesrr.testsymphony.dto.TestSymphonyRecordingDTO;
+import com.github.ulyssesrr.testsymphony.dto.TSRecordingDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -55,7 +55,7 @@ public class RecordByCorrelationIdSubCommand implements Runnable {
             int ch = System.in.read();
             if (ch == 's' || ch == 'S') {
                 if (interactiveConfirmation.confirmStop()) {
-                    TestSymphonyRecordingDTO recordingDTO = client.stopRecording(config.getAppId(), correlationId);
+                    TSRecordingDTO recordingDTO = client.stopRecording(config.getAppId(), correlationId);
                     
                     
                     Optional.ofNullable(recordingDTO)

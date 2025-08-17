@@ -21,7 +21,7 @@ import com.github.ulyssesrr.testsymphony.cli.wiremock.TSWiremockProxy.TSProxyHea
 import com.github.ulyssesrr.testsymphony.cli.wiremock.TSWiremockProxy.TSWiremockProxyConfig;
 import com.github.ulyssesrr.testsymphony.dto.RecordingType;
 import com.github.ulyssesrr.testsymphony.dto.StartRecordingDTO;
-import com.github.ulyssesrr.testsymphony.dto.TestSymphonyRecordingDTO;
+import com.github.ulyssesrr.testsymphony.dto.TSRecordingDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -113,7 +113,7 @@ public class RecordCommand implements Runnable {
             int ch = System.in.read();
             if (ch == 's' || ch == 'S') {
                 if (interactiveConfirmation.confirmStop()) {
-                    TestSymphonyRecordingDTO recordingDTO = client.stopRecording(config.getAppId(), testId);
+                    TSRecordingDTO recordingDTO = client.stopRecording(config.getAppId(), testId);
                     
                     Optional.ofNullable(recordingDTO)
                         .map(r -> r.getWiremock())
