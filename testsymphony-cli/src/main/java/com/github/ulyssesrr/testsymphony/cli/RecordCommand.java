@@ -73,10 +73,17 @@ public class RecordCommand implements Runnable {
     public void run() {
         String testId = UUID.randomUUID().toString();
 
+        TSConfigModel config = configService.getConfig();
+
         TSProxyHeaderRequestFilterConfig proxyHeaderRequestFilterConfig = TSProxyHeaderRequestFilterConfig.builder()
-                .testId(testId).testIdHeaderName(testIdHeaderName).requestIdHeaderName(requestIdHeaderName).build();
+                .appId(config.getAppId())
+                .testId(testId)
+                .testIdHeaderName(testIdHeaderName)
+                .requestIdHeaderName(requestIdHeaderName)
+                .build();
 
         TSWiremockProxyConfig proxyConfig = TSWiremockProxyConfig.builder().bindAddress(proxyListenAddress)
+                .filesRootDir("wiremock/inbound")
                 .proxyPort(proxyListenPort).headerRequestFilterConfig(proxyHeaderRequestFilterConfig).build();
 
         TSWiremockProxy tsProxy = new TSWiremockProxy(proxyConfig, contexts);
@@ -88,8 +95,6 @@ public class RecordCommand implements Runnable {
         startRecordingDTO.setHeaderName(testIdHeaderName);
         startRecordingDTO.setTestId(testId);
 
-        TSConfigModel config = configService.getConfig();
-
         TSClient client = clientManager.getClient(config.getServer());
         client.startRecording(config.getAppId(), startRecordingDTO);
         System.out.println("Recording started.");
@@ -97,7 +102,7 @@ public class RecordCommand implements Runnable {
         System.out.println("Press 's' to stop.");
 
         config.getApplication().getTargets().getTargets().forEach((target) -> {
-            String basePath = "";
+            String basePath = target.getPath();
             String targetUriStr = target.getUri().toString();
             tsProxy.stubFor(
                 any(urlMatching(pathToPattern(basePath)))

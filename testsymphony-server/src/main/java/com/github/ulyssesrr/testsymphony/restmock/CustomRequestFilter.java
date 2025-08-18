@@ -30,9 +30,12 @@ public class CustomRequestFilter implements RequestFilterV2 {
         if (request instanceof WireMockHttpServletRequestAdapter reqAdapter) {
             HttpServletRequest req = getHttpServletRequest(reqAdapter);
 
-            ProxyConnectionContext proxyConnectionContext = (ProxyConnectionContext) req.getAttribute("X-TestSymphony-Proxy-AppId");
-            Request wrappedRequest = RequestWrapper.create().addHeader("X-TestSymphony-Proxy-AppId", proxyConnectionContext.getAppId()).wrap(request);
-            
+            String appId = req.getHeader("X-TestSymphony-Proxy-App-Id");
+            if (appId == null) {
+                ProxyConnectionContext proxyConnectionContext = (ProxyConnectionContext) req.getAttribute("X-TestSymphony-Proxy-App-Id");
+                appId = proxyConnectionContext.getAppId();
+            }
+            Request wrappedRequest = RequestWrapper.create().addHeader("X-TestSymphony-Proxy-App-Id", appId).wrap(request);
             return RequestFilterAction.continueWith(wrappedRequest);
         }
         return RequestFilterAction.continueWith(request);

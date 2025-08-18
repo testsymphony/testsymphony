@@ -48,7 +48,7 @@ public class CustomJetty11HttpServer extends Jetty11HttpServer {
             ConnectionId connectionId = ConnectionId.fromRequestReversed(req);
             ProxyConnectionContext proxyConnectionContext = ProxyConnectionContextManager.INSTANCE.getProxyConnectionContext(connectionId);
             
-            req.setAttribute("X-TestSymphony-Proxy-AppId", proxyConnectionContext);
+            req.setAttribute("X-TestSymphony-Proxy-App-Id", proxyConnectionContext);
             chain.doFilter(req, response);
         }
 

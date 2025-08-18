@@ -1,5 +1,6 @@
 package com.github.ulyssesrr.testsymphony.cli.wiremock;
 
+import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Map;
@@ -17,13 +18,15 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 public class TSWiremockProxy {
 
     private final WireMockServer proxyWireMock;
 
-    public TSWiremockProxy(TSWiremockProxyConfig cfg, Map<Path, URI> contexts) {
+    public TSWiremockProxy(@NonNull TSWiremockProxyConfig cfg, @NonNull Map<Path, URI> contexts) {
+        new File(cfg.getFilesRootDir()).mkdirs();
         proxyWireMock = new WireMockServer(
                 WireMockConfiguration.options()
                         .enableBrowserProxying(true)
@@ -57,7 +60,9 @@ public class TSWiremockProxy {
 
         public RequestFilterAction filter(Request request, ServeEvent event) {
             // Create a wrapper request with the additional headers
-            Request modifiedRequest = RequestWrapper.create().addHeader(cfg.getTestIdHeaderName(), cfg.getTestId())
+            Request modifiedRequest = RequestWrapper.create()
+                    .addHeader("X-TestSymphony-Proxy-App-Id", cfg.getAppId())
+                    .addHeader(cfg.getTestIdHeaderName(), cfg.getTestId())
                     .addHeader(cfg.getRequestIdHeaderName(), UUID.randomUUID().toString())
                     .wrap(request);
 
@@ -74,12 +79,16 @@ public class TSWiremockProxy {
     @Builder
     public static class TSWiremockProxyConfig {
 
+        @NonNull
         private final String bindAddress;
 
-        private final int proxyPort;
+        @NonNull
+        private final Integer proxyPort;
 
+        @NonNull
         private final String filesRootDir;
 
+        @NonNull
         private final TSProxyHeaderRequestFilterConfig headerRequestFilterConfig;
 
     }
@@ -93,7 +102,11 @@ public class TSWiremockProxy {
 
         @Builder.Default
         private final String requestIdHeaderName = "X-TestSymphony-Request-Id";
+        
+        @NonNull
+        private final String appId;
 
+        @NonNull
         private final String testId;
     }
 

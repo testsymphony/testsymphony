@@ -11,6 +11,7 @@ public class TSClientProducer {
     public TSClient getClient(TSServerModel tsServer) {
         return QuarkusRestClientBuilder.newBuilder()
                 .baseUri(tsServer.getUri())
+                .register(new TSObjectMapperContextResolver())
                 .build(TSClient.class);
     }
 }

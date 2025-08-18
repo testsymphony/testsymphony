@@ -41,7 +41,7 @@ public class CustomWiremockRecorder {
 
         private SnapshotStubMappingGenerator browserProxyGenerator = new SnapshotStubMappingGenerator(
                 Map.of(HttpHeaders.HOST, new CaptureHeadersSpec(true),
-                        "X-TestSymphony-Proxy-AppId", new CaptureHeadersSpec(true)),
+                        "X-TestSymphony-Proxy-App-Id", new CaptureHeadersSpec(true)),
                 RecordSpec.DEFAULTS.getRequestBodyPatternFactory());
 
         private SnapshotStubMappingGenerator fowardProxyGenerator = new SnapshotStubMappingGenerator(

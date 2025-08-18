@@ -17,7 +17,7 @@ public class TSAppModel {
 
     @Data
     @JsonDeserialize
-    public class TSAppTargetListWrapper {
+    public static class TSAppTargetListWrapper {
 
         private final List<TSAppTargetModel> targets;
 
