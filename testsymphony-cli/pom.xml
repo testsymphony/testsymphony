@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-		<groupId>com.github.ulyssesrr</groupId>
+		<groupId>com.github.testsymphony</groupId>
         <artifactId>testsymphony-quarkus-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../testsymphony-quarkus-parent</relativePath>
@@ -44,7 +44,7 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.github.ulyssesrr</groupId>
+			<groupId>com.github.testsymphony</groupId>
 			<artifactId>testsymphony-client-dto</artifactId>
 			<version>${project.version}</version>
 		</dependency>
