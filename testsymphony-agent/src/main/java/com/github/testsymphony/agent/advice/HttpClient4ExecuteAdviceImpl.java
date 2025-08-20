@@ -1,11 +1,6 @@
 package com.github.testsymphony.agent.advice;
 
 import org.apache.http.HttpRequest;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.protocol.HttpContext;
 
 import com.github.testsymphony.agent.AgentConfig;
 import com.github.testsymphony.agent.CorrelationIdManager;

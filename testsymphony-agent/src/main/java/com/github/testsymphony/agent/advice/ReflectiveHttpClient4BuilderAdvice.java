@@ -13,7 +13,6 @@ public class ReflectiveHttpClient4BuilderAdvice {
             @Advice.This Object builder) {
         try {
             ClassLoader builderClassLoader = builder.getClass().getClassLoader();
-            System.out.println("classClassLoader: " + builderClassLoader);
             ClassLoader agentClassLoader = ClassLoader.getSystemClassLoader();
 
             Class<?> adviceClassLoaderClass = ClassLoader.getSystemClassLoader()
