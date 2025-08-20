@@ -7,6 +7,7 @@ import java.lang.instrument.Instrumentation;
 import com.github.testsymphony.agent.advice.ReflectiveHttpClient4BuilderAdvice;
 import com.github.testsymphony.agent.advice.ReflectiveHttpClient4ExecuteAdvice;
 import com.github.testsymphony.agent.advice.ReflectiveServletFilterAdvice;
+import com.github.testsymphony.agent.advice.ReflectiveDataSourceAdvice;
 
 import lombok.SneakyThrows;
 import net.bytebuddy.ByteBuddy;
@@ -39,8 +40,9 @@ public class TSAgent {
                 ));
             
             // Apply instrumentation using reflection-based approach
-            // agentBuilder = applyServletInstrumentation(agentBuilder, config);
+            agentBuilder = applyServletInstrumentation(agentBuilder, config);
             agentBuilder = applyHttpClientInstrumentation(agentBuilder, config);
+            agentBuilder = applyDataSourceInstrumentation(agentBuilder, config);
             
             // Install the agent
             agentBuilder.installOn(instrumentation);
@@ -106,6 +108,32 @@ public class TSAgent {
             return agentBuilder;
         } catch (Exception e) {
             logger.info("Could not apply HttpClient instrumentation: " + e.getMessage());
+        }
+        return agentBuilder;
+    }
+    
+    private static AgentBuilder applyDataSourceInstrumentation(AgentBuilder agentBuilder, AgentConfig config) {
+        // Use reflection-based instrumentation without checking for class existence
+        try {
+            logger.info("Applying DataSource instrumentation using reflection");
+            
+            // Instrument DataSource to wrap connections
+            agentBuilder = agentBuilder.type(
+                    hasSuperType(named("javax.sql.DataSource"))
+                    .and(not(isInterface()))
+                )
+                .transform(new AgentBuilder.Transformer.ForAdvice()
+                    .include(ReflectiveDataSourceAdvice.class.getClassLoader())
+                    .advice(
+                        named("getConnection"),
+                        ReflectiveDataSourceAdvice.class.getName()
+                    )
+                    .withExceptionHandler(ExceptionHandler.Default.PRINTING)
+                );
+            
+            return agentBuilder;
+        } catch (Exception e) {
+            logger.info("Could not apply DataSource instrumentation: " + e.getMessage());
         }
         return agentBuilder;
     }
