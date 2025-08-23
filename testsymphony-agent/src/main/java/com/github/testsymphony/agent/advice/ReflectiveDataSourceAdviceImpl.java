@@ -3,14 +3,14 @@ package com.github.testsymphony.agent.advice;
 import java.sql.Connection;
 
 import com.github.testsymphony.agent.StdioLogger;
-import com.github.testsymphony.agent.jdbc.TSWrappedJdbcConnection;
+import com.github.testsymphony.agent.jdbc.TSConnectionProxyFactory;
 
 public class ReflectiveDataSourceAdviceImpl {
     
     public static Object onExit(Object dataSource, Connection connection) {
         try {
-            StdioLogger.INSTANCE.fine("Wrapping JDBC Connection with TSWrappedJdbcConnection");
-            return new TSWrappedJdbcConnection(connection);
+            StdioLogger.INSTANCE.fine("Wrapping JDBC Connection with TSConnectionProxy");
+            return TSConnectionProxyFactory.INSTANCE.wrap(connection);
         } catch (Exception e) {
             StdioLogger.INSTANCE.severe("Error in ReflectiveDataSourceAdviceImpl.onExit: " + e.getMessage());
             e.printStackTrace();
