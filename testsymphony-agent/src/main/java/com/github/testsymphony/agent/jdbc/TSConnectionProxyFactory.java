@@ -1,5 +1,6 @@
 package com.github.testsymphony.agent.jdbc;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,28 +13,43 @@ import com.github.testsymphony.agent.CorrelationIdManager;
 import com.github.testsymphony.agent.client.AgentTSClient;
 import com.github.testsymphony.agent.dto.MockResponseDTO;
 import com.github.testsymphony.agent.dto.RecordingResponseDTO;
+import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
+import com.mockrunner.mock.jdbc.MockResultSet;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.SneakyThrows;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.This;
 
-public enum TSConnectionProxyFactory {
-    INSTANCE;
+@Singleton
+public class TSConnectionProxyFactory {
 
-    private Class<Connection> clazz;
+    private final AgentTSClient client;
 
-    private TSConnectionProxyFactory() {
+    private final Constructor<Connection> ctor;
+
+    @Inject
+    public TSConnectionProxyFactory(AgentTSClient client) {
+        this.client = client;
         Class<ConnectionInterceptor> superType = ConnectionInterceptor.class;
         Class<Connection> targetType = Connection.class;
-        clazz = TSProxyFactory.INSTANCE.createProxy(superType, targetType);
+        Class<Connection> clazz = TSProxyFactory.INSTANCE.createProxy(superType, targetType);
+        ctor = getConstructor(clazz);
+    }
+
+
+    @SneakyThrows
+    private Constructor<Connection> getConstructor(Class<Connection> clazz) {
+        return clazz.getDeclaredConstructor(Connection.class, AgentTSClient.class);
     }
 
     public Connection wrap(Connection connection) {
         try {
-            return (Connection) clazz.getDeclaredConstructor(Connection.class)
-                    .newInstance(connection);
+            return ctor.newInstance(connection, client);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create proxy for Connection", e);
         }
@@ -42,7 +58,7 @@ public enum TSConnectionProxyFactory {
     public static abstract class ConnectionInterceptor implements Connection {
         private final Connection delegate;
         private final MockConnection mockConnection;
-        private final AgentTSClient client = AgentTSClient.getInstance();
+        private final AgentTSClient client;
 
         private static final Set<Method> preparedStatementMethods = new HashSet<>();
         private static final Set<Method> statementMethods = new HashSet<>();
@@ -58,9 +74,9 @@ public enum TSConnectionProxyFactory {
             }
         }
 
-        public ConnectionInterceptor(Connection delegate) {
+        public ConnectionInterceptor(Connection delegate, AgentTSClient client) {
             this.delegate = delegate;
-            // Create a mock connection
+            this.client = client;
             this.mockConnection = new MockConnection();
         }
 
@@ -84,7 +100,7 @@ public enum TSConnectionProxyFactory {
 
                 // 1. Check for mock
                 MockResponseDTO mockResponse = self.client.getMockForQuery(query, correlationId);
-                if (mockResponse.isHasMock()) {
+                if (mockResponse.hasMockData()) {
                     // Return mocked ResultSet using mockrunner-jdbc
                     return createMockedPreparedStatement(self.mockConnection, query, mockResponse);
                 }
@@ -118,8 +134,11 @@ public enum TSConnectionProxyFactory {
 
         private static PreparedStatement createMockedPreparedStatement(MockConnection mockConnection, String query,
                 MockResponseDTO mockResponse) {
-            // Implementation using mockrunner-jdbc
             try {
+                PreparedStatementResultSetHandler statementHandler = mockConnection.getPreparedStatementResultSetHandler();
+                MockResultSet resultSet = statementHandler.createResultSet();
+                resultSet.addRow(mockResponse.getMockData()[0]);
+                statementHandler.prepareResultSet(query, resultSet);
                 return mockConnection.prepareStatement(query);
             } catch (Exception e) {
                 throw new RuntimeException("Failed to create mocked PreparedStatement", e);

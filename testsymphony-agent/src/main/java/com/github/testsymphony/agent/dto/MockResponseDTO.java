@@ -8,8 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MockResponseDTO {
-    private boolean hasMock;
     private String[][] mockData; // 2D array representing rows and columns
     private String[] columnNames;
     private String[] columnTypes; // SQL type names
+
+    public boolean hasMockData() {
+        return mockData != null;
+    }
 }

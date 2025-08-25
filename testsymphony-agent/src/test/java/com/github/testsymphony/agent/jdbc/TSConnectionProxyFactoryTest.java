@@ -1,52 +1,61 @@
 package com.github.testsymphony.agent.jdbc;
 
-import java.lang.instrument.Instrumentation;
-import java.sql.Connection;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verifyNoInteractions;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import org.assertj.core.api.WithAssertions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.github.testsymphony.agent.TSAgent;
-import com.github.testsymphony.agent.proxy.TSProxyMarker;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import com.github.testsymphony.agent.client.AgentTSClient;
+import com.github.testsymphony.agent.dto.MockResponseDTO;
 
-import net.bytebuddy.agent.ByteBuddyAgent;
-
+@ExtendWith(MockitoExtension.class)
 public class TSConnectionProxyFactoryTest implements WithAssertions {
-    
-    private DataSource dataSource;
-    
+
+    @Mock(answer = Answers.RETURNS_SMART_NULLS)
+    private AgentTSClient client;
+
+    @Mock(answer = Answers.RETURNS_SMART_NULLS)
+    private Connection dbConnection;
+
+    private TSConnectionProxyFactory tsConnectionProxyFactory;
+
     @BeforeEach
-    void setUp() {
-        // Set up a simple in-memory H2 database as our DataSource
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:h2:mem:testdb");
-        config.setUsername("sa");
-        config.setPassword("");
-        dataSource = new HikariDataSource(config);
-        
-        ByteBuddyAgent.install();
-        Instrumentation instrumentation = ByteBuddyAgent.getInstrumentation();
-        TSAgent.premain(null, instrumentation);
+    void beforeEach() {
+        tsConnectionProxyFactory = new TSConnectionProxyFactory(client);
     }
-    
-    @AfterEach
-    void tearDown() {
-        if (dataSource instanceof HikariDataSource) {
-            ((HikariDataSource) dataSource).close();
-        }
-    }
-    
+
     @Test
-    public void testAgentWrapsDataSourceConnection() throws Exception {
-        // Get a connection from the DataSource
-        Connection connection = dataSource.getConnection();
-        // Check that the connection is wrapped by our proxy
-        assertThat(connection).isInstanceOf(TSProxyMarker.class);
+    public void testPreparedStatementResultMock() throws Exception {
+        Connection wrappedConn = tsConnectionProxyFactory.wrap(dbConnection);
+        final String sql = "SELECT * FROM users";
+
+        MockResponseDTO mockResponseDTO = new MockResponseDTO();
+        mockResponseDTO.setMockData(new String[][] {
+                { "1", "John", "Doe" },
+                { "2", "Jane", "Smith" }
+        });
+        doReturn(mockResponseDTO).when(client).getMockForQuery(eq(sql), any());
+        //doReturn(new RecordingResponseDTO(false, null)).when(client).getRecordingForQuery(eq(sql), any());
+
+        PreparedStatement statement = wrappedConn.prepareStatement(sql);
+
+        try (ResultSet rs = statement.executeQuery()) {
+            // first row
+            assertThat(rs.next()).as("row 1 exists").isTrue();
+            assertThat(rs.getString(2)).isEqualTo("John");
+        }
+        verifyNoInteractions(dbConnection);
     }
 }

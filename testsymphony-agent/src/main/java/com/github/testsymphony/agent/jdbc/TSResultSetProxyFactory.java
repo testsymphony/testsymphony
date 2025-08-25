@@ -9,6 +9,7 @@ import java.util.List;
 import com.github.testsymphony.agent.client.AgentTSClient;
 import com.github.testsymphony.agent.dto.ResultSetRecordingDTO;
 
+import lombok.RequiredArgsConstructor;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -34,32 +35,27 @@ public enum TSResultSetProxyFactory {
         }
     }
     
+    @RequiredArgsConstructor
     public static abstract class ResultSetInterceptor implements ResultSet {
+        private final AgentTSClient agentTSClient;
         private final ResultSet delegate;
         private final String query;
         private final String correlationId;
         private final String recordingId;
         
-        public ResultSetInterceptor(ResultSet delegate, String query, String correlationId, String recordingId) {
-            this.delegate = delegate;
-            this.query = query;
-            this.correlationId = correlationId;
-            this.recordingId = recordingId;
-        }
-        
         @RuntimeType
-        public static Object intercept(@This ResultSetInterceptor thiz, @Origin Method method, @AllArguments Object[] args) throws Exception {
+        public static Object intercept(@This ResultSetInterceptor self, @Origin Method method, @AllArguments Object[] args) throws Exception {
             // Intercept the close() method to capture and report data
             if ("close".equals(method.getName())) {
                 // Capture ResultSet data before closing
-                ResultSetRecordingDTO recordingDTO = captureResultSetData(thiz.delegate, thiz.query, thiz.correlationId, thiz.recordingId);
+                ResultSetRecordingDTO recordingDTO = captureResultSetData(self.delegate, self.query, self.correlationId, self.recordingId);
                 
                 // Report data to server
-                AgentTSClient.getInstance().reportResultSetData(recordingDTO);
+                self.agentTSClient.reportResultSetData(recordingDTO);
             }
             
             // Delegate all method calls to the original ResultSet
-            return method.invoke(thiz.delegate, args);
+            return method.invoke(self.delegate, args);
         }
         
         private static ResultSetRecordingDTO captureResultSetData(ResultSet rs, String query, String correlationId, String recordingId) throws SQLException {

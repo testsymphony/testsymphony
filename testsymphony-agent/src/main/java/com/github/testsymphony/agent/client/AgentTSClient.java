@@ -4,15 +4,13 @@ import com.github.testsymphony.agent.dto.MockResponseDTO;
 import com.github.testsymphony.agent.dto.RecordingResponseDTO;
 import com.github.testsymphony.agent.dto.ResultSetRecordingDTO;
 
+import jakarta.inject.Singleton;
+
+@Singleton
 public class AgentTSClient {
-    private static final AgentTSClient INSTANCE = new AgentTSClient();
     
-    private AgentTSClient() {
-        // Private constructor for singleton
-    }
-    
-    public static AgentTSClient getInstance() {
-        return INSTANCE;
+    public AgentTSClient() {
+
     }
     
     public MockResponseDTO getMockForQuery(String query, String correlationId) {
@@ -22,7 +20,6 @@ public class AgentTSClient {
         // Example stubbed logic:
         if (query.contains("SELECT * FROM users")) {
             return new MockResponseDTO(
-                true,
                 new String[][] {
                     {"1", "John", "Doe"},
                     {"2", "Jane", "Smith"}
@@ -32,7 +29,7 @@ public class AgentTSClient {
             );
         }
         
-        return new MockResponseDTO(false, null, null, null);
+        return new MockResponseDTO(null, null, null);
     }
     
     public RecordingResponseDTO getRecordingForQuery(String query, String correlationId) {
