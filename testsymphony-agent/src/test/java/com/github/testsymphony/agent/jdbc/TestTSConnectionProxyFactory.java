@@ -21,7 +21,7 @@ import com.github.testsymphony.agent.client.AgentTSClient;
 import com.github.testsymphony.agent.dto.MockResponseDTO;
 
 @ExtendWith(MockitoExtension.class)
-public class TSConnectionProxyFactoryTest implements WithAssertions {
+public class TestTSConnectionProxyFactory implements WithAssertions {
 
     @Mock(answer = Answers.RETURNS_SMART_NULLS)
     private AgentTSClient client;
@@ -33,7 +33,9 @@ public class TSConnectionProxyFactoryTest implements WithAssertions {
 
     @BeforeEach
     void beforeEach() {
-        tsConnectionProxyFactory = new TSConnectionProxyFactory(client);
+        TSResultSetProxyFactory tsResultSetProxyFactory = new TSResultSetProxyFactory(client);
+        TSPreparedStatementProxyFactory preparedStatementProxyFactory = new TSPreparedStatementProxyFactory(tsResultSetProxyFactory);
+        tsConnectionProxyFactory = new TSConnectionProxyFactory(client, preparedStatementProxyFactory);
     }
 
     @Test
@@ -46,6 +48,25 @@ public class TSConnectionProxyFactoryTest implements WithAssertions {
                 { "1", "John", "Doe" },
                 { "2", "Jane", "Smith" }
         });
+        doReturn(mockResponseDTO).when(client).getMockForQuery(eq(sql), any());
+        //doReturn(new RecordingResponseDTO(false, null)).when(client).getRecordingForQuery(eq(sql), any());
+
+        PreparedStatement statement = wrappedConn.prepareStatement(sql);
+
+        try (ResultSet rs = statement.executeQuery()) {
+            // first row
+            assertThat(rs.next()).as("row 1 exists").isTrue();
+            assertThat(rs.getString(2)).isEqualTo("John");
+        }
+        verifyNoInteractions(dbConnection);
+    }
+
+    @Test
+    public void testPreparedStatementRecording() throws Exception {
+        Connection wrappedConn = tsConnectionProxyFactory.wrap(dbConnection);
+        final String sql = "SELECT * FROM users";
+
+        MockResponseDTO mockResponseDTO = new MockResponseDTO();
         doReturn(mockResponseDTO).when(client).getMockForQuery(eq(sql), any());
         //doReturn(new RecordingResponseDTO(false, null)).when(client).getRecordingForQuery(eq(sql), any());
 

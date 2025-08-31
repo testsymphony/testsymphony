@@ -12,7 +12,6 @@ import java.util.Set;
 import com.github.testsymphony.agent.CorrelationIdManager;
 import com.github.testsymphony.agent.client.AgentTSClient;
 import com.github.testsymphony.agent.dto.MockResponseDTO;
-import com.github.testsymphony.agent.dto.RecordingResponseDTO;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
@@ -30,11 +29,14 @@ public class TSConnectionProxyFactory {
 
     private final AgentTSClient client;
 
+    private final TSPreparedStatementProxyFactory tsPreparedStatementProxyFactory;
+
     private final Constructor<Connection> ctor;
 
     @Inject
-    public TSConnectionProxyFactory(AgentTSClient client) {
+    public TSConnectionProxyFactory(AgentTSClient client, TSPreparedStatementProxyFactory tsPreparedStatementProxyFactory) {
         this.client = client;
+        this.tsPreparedStatementProxyFactory = tsPreparedStatementProxyFactory;
         Class<ConnectionInterceptor> superType = ConnectionInterceptor.class;
         Class<Connection> targetType = Connection.class;
         Class<Connection> clazz = TSProxyFactory.INSTANCE.createProxy(superType, targetType);
@@ -44,18 +46,19 @@ public class TSConnectionProxyFactory {
 
     @SneakyThrows
     private Constructor<Connection> getConstructor(Class<Connection> clazz) {
-        return clazz.getDeclaredConstructor(Connection.class, AgentTSClient.class);
+        return clazz.getDeclaredConstructor(TSConnectionProxyFactory.class, Connection.class, AgentTSClient.class);
     }
 
     public Connection wrap(Connection connection) {
         try {
-            return ctor.newInstance(connection, client);
+            return ctor.newInstance(this, connection, client);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create proxy for Connection", e);
         }
     }
 
     public static abstract class ConnectionInterceptor implements Connection {
+        private final TSConnectionProxyFactory factory;
         private final Connection delegate;
         private final MockConnection mockConnection;
         private final AgentTSClient client;
@@ -74,7 +77,8 @@ public class TSConnectionProxyFactory {
             }
         }
 
-        public ConnectionInterceptor(Connection delegate, AgentTSClient client) {
+        public ConnectionInterceptor(TSConnectionProxyFactory factory, Connection delegate, AgentTSClient client) {
+            this.factory = factory;
             this.delegate = delegate;
             this.client = client;
             this.mockConnection = new MockConnection();
@@ -109,11 +113,9 @@ public class TSConnectionProxyFactory {
                 PreparedStatement actualStatement = (PreparedStatement) method.invoke(self.delegate, args);
 
                 // 3. Check for recording
-                RecordingResponseDTO recordingResponse = self.client.getRecordingForQuery(query, correlationId);
-                if (recordingResponse.isShouldRecord()) {
+                if (mockResponse.isRecording()) {
                     // Wrap the actual PreparedStatement with a proxy to intercept ResultSet
-                    return TSPreparedStatementProxyFactory.INSTANCE.wrap(actualStatement, query, correlationId,
-                            recordingResponse.getRecordingId());
+                    return self.factory.tsPreparedStatementProxyFactory.wrap(actualStatement, query, correlationId);
                 }
 
                 // Return actual statement if no recording needed

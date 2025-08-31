@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.instrument.Instrumentation;
 import java.sql.Connection;
-import javax.sql.DataSource;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -18,7 +17,7 @@ import com.github.testsymphony.agent.proxy.TSProxyMarker;
 
 public class DataSourceAgentIntegrationTest implements WithAssertions {
 
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     @BeforeEach
     void setUp() {
@@ -36,10 +35,9 @@ public class DataSourceAgentIntegrationTest implements WithAssertions {
 
     @AfterEach
     void tearDown() {
-        if (dataSource instanceof HikariDataSource) {
-            ((HikariDataSource) dataSource).close();
-        }
+        dataSource.close();
     }
+    
     @Test
     public void testAgentWrapsDataSourceConnection() throws Exception {
         // Get a connection from the DataSource

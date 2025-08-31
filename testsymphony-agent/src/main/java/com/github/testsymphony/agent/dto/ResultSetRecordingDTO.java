@@ -10,8 +10,7 @@ import lombok.NoArgsConstructor;
 public class ResultSetRecordingDTO {
     private String query;
     private String correlationId;
-    private String recordingId;
-    private String[][] data; // 2D array representing rows and columns
+    private TypedValue[][] data; // 2D array representing rows and columns
     private String[] columnNames;
     private String[] columnTypes; // SQL type names
 }

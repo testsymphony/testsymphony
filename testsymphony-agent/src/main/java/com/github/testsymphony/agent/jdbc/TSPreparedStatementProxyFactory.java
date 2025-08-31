@@ -1,45 +1,55 @@
 package com.github.testsymphony.agent.jdbc;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.This;
 
-public enum TSPreparedStatementProxyFactory {
-    INSTANCE;
+@Singleton
+public class TSPreparedStatementProxyFactory {
 
-    private Class<PreparedStatement> clazz;
+    private final TSResultSetProxyFactory tsResultSetProxyFactory;
 
-    private TSPreparedStatementProxyFactory() {
+    private final Class<PreparedStatement> clazz;
+
+    private final Constructor<PreparedStatement> ctor;
+
+    @Inject
+    @SneakyThrows
+    public TSPreparedStatementProxyFactory(TSResultSetProxyFactory tsResultSetProxyFactory) {
+        this.tsResultSetProxyFactory = tsResultSetProxyFactory;
         Class<PreparedStatementInterceptor> superType = PreparedStatementInterceptor.class;
         Class<PreparedStatement> targetType = PreparedStatement.class;
         clazz = TSProxyFactory.INSTANCE.createProxy(superType, targetType);
+        ctor = clazz.getDeclaredConstructor(TSPreparedStatementProxyFactory.class, PreparedStatement.class, String.class, String.class);
     }
 
-    public PreparedStatement wrap(PreparedStatement preparedStatement, String query, String correlationId, String recordingId) {
+    public PreparedStatement wrap(PreparedStatement preparedStatement, String query, String correlationId) {
         try {
-            return (PreparedStatement) clazz.getDeclaredConstructor(PreparedStatement.class, String.class, String.class, String.class)
-                    .newInstance(preparedStatement, query, correlationId, recordingId);
+            return (PreparedStatement) ctor.newInstance(this, preparedStatement, query, correlationId);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create proxy for PreparedStatement", e);
         }
     }
 
+    @RequiredArgsConstructor
     public static abstract class PreparedStatementInterceptor implements PreparedStatement {
+        private final TSPreparedStatementProxyFactory factory;
         private final PreparedStatement delegate;
         private final String query;
         private final String correlationId;
-        private final String recordingId;
 
-        public PreparedStatementInterceptor(PreparedStatement delegate, String query, String correlationId, String recordingId) {
-            this.delegate = delegate;
-            this.query = query;
-            this.correlationId = correlationId;
-            this.recordingId = recordingId;
+        private TSResultSetProxyFactory getTSPreparedStatementProxyFactory() {
+            return factory.tsResultSetProxyFactory;
         }
 
         @RuntimeType
@@ -48,7 +58,7 @@ public enum TSPreparedStatementProxyFactory {
             if ("executeQuery".equals(method.getName()) && method.getParameterCount() == 0) {
                 ResultSet actualResultSet = (ResultSet) method.invoke(thiz.delegate, args);
                 // Wrap with ResultSet proxy for recording
-                return TSResultSetProxyFactory.INSTANCE.wrap(actualResultSet, thiz.query, thiz.correlationId, thiz.recordingId);
+                return thiz.getTSPreparedStatementProxyFactory().wrap(actualResultSet, thiz.query, thiz.correlationId);
             }
 
             // Delegate all other method calls to the original PreparedStatement

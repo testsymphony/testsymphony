@@ -11,6 +11,7 @@ public class MockResponseDTO {
     private String[][] mockData; // 2D array representing rows and columns
     private String[] columnNames;
     private String[] columnTypes; // SQL type names
+    private boolean recording;
 
     public boolean hasMockData() {
         return mockData != null;
