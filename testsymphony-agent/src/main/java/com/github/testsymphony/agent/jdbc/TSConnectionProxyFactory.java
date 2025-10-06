@@ -104,7 +104,7 @@ public class TSConnectionProxyFactory {
 
                 // 1. Check for mock
                 MockResponseDTO mockResponse = self.client.getMockForQuery(query, correlationId);
-                if (mockResponse.hasMockData()) {
+                if (mockResponse != null && mockResponse.hasMockData()) {
                     // Return mocked ResultSet using mockrunner-jdbc
                     return createMockedPreparedStatement(self.mockConnection, query, mockResponse);
                 }
@@ -113,7 +113,7 @@ public class TSConnectionProxyFactory {
                 PreparedStatement actualStatement = (PreparedStatement) method.invoke(self.delegate, args);
 
                 // 3. Check for recording
-                if (mockResponse.isRecording()) {
+                if (mockResponse != null && mockResponse.isRecording()) {
                     // Wrap the actual PreparedStatement with a proxy to intercept ResultSet
                     return self.factory.tsPreparedStatementProxyFactory.wrap(actualStatement, query, correlationId);
                 }
@@ -139,7 +139,10 @@ public class TSConnectionProxyFactory {
             try {
                 PreparedStatementResultSetHandler statementHandler = mockConnection.getPreparedStatementResultSetHandler();
                 MockResultSet resultSet = statementHandler.createResultSet();
-                resultSet.addRow(mockResponse.getMockData()[0]);
+                String[][] mockData = mockResponse.getMockData();
+                for (int i = 0; i < mockData.length; i++) {
+                    resultSet.addRow(mockData[i]);
+                }
                 statementHandler.prepareResultSet(query, resultSet);
                 return mockConnection.prepareStatement(query);
             } catch (Exception e) {
