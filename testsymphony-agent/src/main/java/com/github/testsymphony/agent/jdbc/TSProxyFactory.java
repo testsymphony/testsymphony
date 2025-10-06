@@ -1,6 +1,5 @@
 package com.github.testsymphony.agent.jdbc;
 
-import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 import com.github.testsymphony.agent.proxy.TSProxyMarker;
@@ -19,7 +18,7 @@ public enum TSProxyFactory {
                 .subclass(superType)
                 .implement(targetType)
                 .implement(TSProxyMarker.class)
-                .method(isDeclaredBy(targetType).and(not(ElementMatchers.isDeclaredBy(superType))))
+                .method(not(ElementMatchers.isDeclaredBy(superType)))
                 .intercept(MethodDelegation.to(superType))
                 .make()
                 .load(TSConnectionProxyFactory.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
