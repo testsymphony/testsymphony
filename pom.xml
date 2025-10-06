@@ -38,6 +38,7 @@
                 <module>testsymphony-agent</module>
                 <module>testsymphony-agent-bootstrap</module>
                 <module>testsymphony-app-runtime-hibernate5</module>
+                <module>it-springboot3</module>
             </modules>
         </profile>
         <profile>
