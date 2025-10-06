@@ -3,6 +3,7 @@ package com.github.testsymphony.agent.client;
 import com.github.testsymphony.agent.dto.MockResponseDTO;
 import com.github.testsymphony.agent.dto.ResultSetRecordingDTO;
 
+import io.avaje.lang.Nullable;
 import jakarta.inject.Singleton;
 
 @Singleton
@@ -12,7 +13,7 @@ public class AgentTSClient {
 
     }
     
-    public MockResponseDTO getMockForQuery(String query, String correlationId) {
+    public @Nullable MockResponseDTO getMockForQuery(String query, String correlationId) {
         // Stubbed implementation with fixed data for now
         // In real implementation: make REST call to server
         

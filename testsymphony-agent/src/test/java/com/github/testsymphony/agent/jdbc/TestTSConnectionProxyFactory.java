@@ -3,6 +3,7 @@ package com.github.testsymphony.agent.jdbc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.sql.Connection;
@@ -14,11 +15,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.github.testsymphony.agent.client.AgentTSClient;
 import com.github.testsymphony.agent.dto.MockResponseDTO;
+import com.github.testsymphony.agent.dto.ResultSetRecordingDTO;
+import com.github.testsymphony.agent.dto.TypedValue;
+import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
+import com.mockrunner.mock.jdbc.MockConnection;
+import com.mockrunner.mock.jdbc.MockResultSet;
 
 @ExtendWith(MockitoExtension.class)
 public class TestTSConnectionProxyFactory implements WithAssertions {
@@ -26,8 +35,11 @@ public class TestTSConnectionProxyFactory implements WithAssertions {
     @Mock(answer = Answers.RETURNS_SMART_NULLS)
     private AgentTSClient client;
 
-    @Mock(answer = Answers.RETURNS_SMART_NULLS)
-    private Connection dbConnection;
+    @Captor
+    private ArgumentCaptor<ResultSetRecordingDTO> recordingCaptor;
+
+    @Spy
+    private MockConnection dbConnection = new MockConnection();
 
     private TSConnectionProxyFactory tsConnectionProxyFactory;
 
@@ -36,6 +48,35 @@ public class TestTSConnectionProxyFactory implements WithAssertions {
         TSResultSetProxyFactory tsResultSetProxyFactory = new TSResultSetProxyFactory(client);
         TSPreparedStatementProxyFactory preparedStatementProxyFactory = new TSPreparedStatementProxyFactory(tsResultSetProxyFactory);
         tsConnectionProxyFactory = new TSConnectionProxyFactory(client, preparedStatementProxyFactory);
+    }
+
+    @Test
+    public void testPreparedStatementPasstrough() throws Exception {
+        Connection wrappedConn = tsConnectionProxyFactory.wrap(dbConnection);
+        final String sql = "SELECT * FROM users";
+
+        // no recording for query
+        doReturn(null).when(client).getMockForQuery(eq(sql), any());
+
+        
+        PreparedStatementResultSetHandler statementHandler = dbConnection.getPreparedStatementResultSetHandler();
+        MockResultSet resultSet = statementHandler.createResultSet();
+        String[] row1 = new String[] { "1", "Isaac", "Newton" };
+        resultSet.addRow(row1);
+        String[] row2 = new String[] { "2", "Albert", "Einstein" };
+        resultSet.addRow(row2);
+        statementHandler.prepareResultSet(sql, resultSet);
+        
+        try (PreparedStatement statement = wrappedConn.prepareStatement(sql); ResultSet rs = statement.executeQuery()) {
+            // first row
+            assertThat(rs.next()).as("row 1 exists").isTrue();
+            assertThat(rs.getString(2)).isEqualTo("Isaac");
+
+            // second row
+            assertThat(rs.next()).as("row 2 exists").isTrue();
+            assertThat(rs.getString(2)).isEqualTo("Albert");
+        }
+        verify(dbConnection).prepareStatement(sql);
     }
 
     @Test
@@ -57,26 +98,54 @@ public class TestTSConnectionProxyFactory implements WithAssertions {
             // first row
             assertThat(rs.next()).as("row 1 exists").isTrue();
             assertThat(rs.getString(2)).isEqualTo("John");
+
+            // second row
+            assertThat(rs.next()).as("row 2 exists").isTrue();
+            assertThat(rs.getString(2)).isEqualTo("Jane");
         }
         verifyNoInteractions(dbConnection);
+        
     }
+    
 
     @Test
     public void testPreparedStatementRecording() throws Exception {
         Connection wrappedConn = tsConnectionProxyFactory.wrap(dbConnection);
         final String sql = "SELECT * FROM users";
 
+        // no recording for query
         MockResponseDTO mockResponseDTO = new MockResponseDTO();
+        mockResponseDTO.setRecording(true);
         doReturn(mockResponseDTO).when(client).getMockForQuery(eq(sql), any());
-        //doReturn(new RecordingResponseDTO(false, null)).when(client).getRecordingForQuery(eq(sql), any());
 
-        PreparedStatement statement = wrappedConn.prepareStatement(sql);
+        
+        PreparedStatementResultSetHandler statementHandler = dbConnection.getPreparedStatementResultSetHandler();
+        MockResultSet resultSet = statementHandler.createResultSet();
+        String[] row1 = new String[] { "1", "Isaac", "Newton" };
+        resultSet.addRow(row1);
+        String[] row2 = new String[] { "2", "Albert", "Einstein" };
+        resultSet.addRow(row2);
+        statementHandler.prepareResultSet(sql, resultSet);
 
-        try (ResultSet rs = statement.executeQuery()) {
+        try (PreparedStatement statement = wrappedConn.prepareStatement(sql); ResultSet rs = statement.executeQuery()) {
             // first row
             assertThat(rs.next()).as("row 1 exists").isTrue();
-            assertThat(rs.getString(2)).isEqualTo("John");
+            assertThat(rs.getString(2)).isEqualTo("Isaac");
+
+            // second row
+            assertThat(rs.next()).as("row 2 exists").isTrue();
+            assertThat(rs.getString(2)).isEqualTo("Albert");
         }
-        verifyNoInteractions(dbConnection);
+        verify(dbConnection).prepareStatement(sql);
+
+        verify(client).reportResultSetData(recordingCaptor.capture());
+        assertThat(recordingCaptor.getValue()).as("result record sent").isNotNull();
+
+        TypedValue[][] data = recordingCaptor.getValue().getData();
+        TypedValue[] rowRecorded1 = data[0];
+        assertThat(rowRecorded1[1].getValue()).isEqualTo(row1[1]);
+
+        TypedValue[] rowRecorded2 = data[1];
+        assertThat(rowRecorded2[1].getValue()).isEqualTo(row2[1]);
     }
 }
