@@ -21,16 +21,21 @@ public class DataSourceAgentIntegrationTest implements WithAssertions {
 
     @BeforeEach
     void setUp() {
+        System.out.println("ByteBuddyAgent.install:BEFORE");
+        Instrumentation instrumentation = ByteBuddyAgent.install();
+        System.out.println("ByteBuddyAgent.install:AFTER");
+        TSAgent.premain(null, instrumentation);
+        System.out.println("TSAgent.premain:AFTER");
+
         // Set up a simple in-memory H2 database as our DataSource
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:h2:mem:testdb");
         config.setUsername("sa");
         config.setPassword("");
-        dataSource = new HikariDataSource(config);
 
-        ByteBuddyAgent.install();
-        Instrumentation instrumentation = ByteBuddyAgent.getInstrumentation();
-        TSAgent.premain(null, instrumentation);
+        System.out.println("this.dataSource = new HikariDataSource(config); BEFORE");
+        this.dataSource = new HikariDataSource(config);
+        System.out.println("this.dataSource = new HikariDataSource(config); AFTER");
     }
 
     @AfterEach

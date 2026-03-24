@@ -4,22 +4,21 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.github.testsymphony</groupId>
-        <artifactId>testsymphony-quarkus-parent</artifactId>
+        <groupId>com.github.testsymphony</groupId>
+        <artifactId>testsymphony-root</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../testsymphony-quarkus-parent</relativePath>
+        <relativePath>../</relativePath>
     </parent>
 
-	<artifactId>testsymphony-client-dto</artifactId>
-	<name>testsymphony-client-dto</name>
-	<description>testsymphony-client-dto</description>
+	<artifactId>testsymphony-client-core</artifactId>
+	<name>testsymphony-client-core</name>
+	<description>testsymphony-client-core</description>
 	
 	<dependencies>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.38</version>
-			<optional>true</optional>
+		    <scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -31,20 +30,24 @@
 	</dependencies>
 
     <build>
-        <finalName>testsymphony-client-dto</finalName>
+        <finalName>testsymphony-client-core</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>io.smallrye</groupId>
-                <artifactId>jandex-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

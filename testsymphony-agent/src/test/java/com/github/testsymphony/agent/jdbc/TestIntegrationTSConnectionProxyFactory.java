@@ -49,9 +49,9 @@ public class TestIntegrationTSConnectionProxyFactory implements WithAssertions {
 
     @BeforeEach
     void beforeEach() throws SQLException {
-        ByteBuddyAgent.install();
-        Instrumentation instrumentation = ByteBuddyAgent.getInstrumentation();
+        Instrumentation instrumentation = ByteBuddyAgent.install();
         TSAgent.premain(null, instrumentation);
+        
 
         TSResultSetProxyFactory tsResultSetProxyFactory = new TSResultSetProxyFactory(client);
         TSPreparedStatementProxyFactory preparedStatementProxyFactory = new TSPreparedStatementProxyFactory(
@@ -59,7 +59,7 @@ public class TestIntegrationTSConnectionProxyFactory implements WithAssertions {
         tsConnectionProxyFactory = new TSConnectionProxyFactory(client, preparedStatementProxyFactory);
 
         dbConnection = DriverManager.getConnection(
-                "jdbc:h2:mem:testdb;INIT=" + DDL,
+                "jdbc:h2:mem:;INIT=" + DDL,
                 "sa",
                 "");
 

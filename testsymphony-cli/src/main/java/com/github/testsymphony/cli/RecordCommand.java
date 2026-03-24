@@ -10,8 +10,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.github.testsymphony.cli.client.TSClient;
 import com.github.testsymphony.cli.client.TSClientProducer;
 import com.github.testsymphony.cli.config.TSConfigModel;
 import com.github.testsymphony.cli.helper.InteractiveConfirmation;
@@ -19,6 +17,7 @@ import com.github.testsymphony.cli.wiremock.TSWiremockMappingsSource;
 import com.github.testsymphony.cli.wiremock.TSWiremockProxy;
 import com.github.testsymphony.cli.wiremock.TSWiremockProxy.TSProxyHeaderRequestFilterConfig;
 import com.github.testsymphony.cli.wiremock.TSWiremockProxy.TSWiremockProxyConfig;
+import com.github.testsymphony.client.TSClient;
 import com.github.testsymphony.client.dto.RecordingType;
 import com.github.testsymphony.client.dto.StartRecordingDTO;
 import com.github.testsymphony.client.dto.TSRecordingDTO;

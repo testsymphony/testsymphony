@@ -1,4 +1,4 @@
-package com.github.testsymphony.cli.client;
+package com.github.testsymphony.client;
 
 import java.io.IOException;
 

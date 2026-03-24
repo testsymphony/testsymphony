@@ -4,12 +4,12 @@ import java.io.File;
 import java.io.IOException;
 
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
-import com.github.testsymphony.cli.client.TSClient;
 import com.github.testsymphony.cli.client.TSClientProducer;
 import com.github.testsymphony.cli.config.TSConfigModel;
 import com.github.testsymphony.cli.config.TSTestModel;
 import com.github.testsymphony.cli.maestro.MaestroRunner;
 import com.github.testsymphony.cli.wiremock.TSWiremockMappingsSource;
+import com.github.testsymphony.client.TSClient;
 import com.github.testsymphony.client.dto.TSRecordingDTO;
 import com.github.testsymphony.client.dto.WiremockRecordingDTO;
 

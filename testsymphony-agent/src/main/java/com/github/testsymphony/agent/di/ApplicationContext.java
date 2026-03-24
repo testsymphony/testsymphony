@@ -3,13 +3,13 @@ package com.github.testsymphony.agent.di;
 import io.avaje.inject.BeanScope;
 import lombok.experimental.Delegate;
 
-public enum BeanContext implements BeanScope {
+public enum ApplicationContext implements BeanScope {
     INSTANCE;
 
     @Delegate
     private final BeanScope beanScope;
 
-    private BeanContext() {
+    private ApplicationContext() {
         beanScope = BeanScope.newBuilder().build();
     }
 }
