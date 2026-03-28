@@ -7,7 +7,7 @@ import feign.Param;
 import feign.RequestLine;
 
 public interface TSClient {
-    
+
     @RequestLine("POST /testing/{appId}/record/start")
 	StartRecordingDTO startRecording(@Param("appId") String appId, StartRecordingDTO startRecordingDTO);
 

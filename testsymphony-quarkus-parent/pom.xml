@@ -6,16 +6,15 @@
 
     <parent>
         <groupId>com.github.testsymphony</groupId>
-        <artifactId>testsymphony-root</artifactId>
+        <artifactId>testsymphony-parent-jdk17</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../testsymphony-parent-jdk17</relativePath>
     </parent>
 
     <artifactId>testsymphony-quarkus-parent</artifactId>
     <packaging>pom</packaging>
 
     <properties>
-        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>

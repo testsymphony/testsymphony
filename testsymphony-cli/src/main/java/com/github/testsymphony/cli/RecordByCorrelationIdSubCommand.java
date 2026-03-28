@@ -28,7 +28,7 @@ public class RecordByCorrelationIdSubCommand implements Runnable {
     String testIdHeaderName = "X-Correlation-ID";
 
     private final ConfigService configService;
-    
+
     private final TSClientProducer clientManager;
 
     private final InteractiveConfirmation interactiveConfirmation;
@@ -56,8 +56,8 @@ public class RecordByCorrelationIdSubCommand implements Runnable {
             if (ch == 's' || ch == 'S') {
                 if (interactiveConfirmation.confirmStop()) {
                     TSRecordingDTO recordingDTO = client.stopRecording(config.getAppId(), correlationId);
-                    
-                    
+
+
                     Optional.ofNullable(recordingDTO)
                         .map(r -> r.getWiremock())
                         .map(w -> w.getStubMappings())
@@ -76,8 +76,8 @@ public class RecordByCorrelationIdSubCommand implements Runnable {
             }
         }
 
-        
+
 
     }
-    
+
 }

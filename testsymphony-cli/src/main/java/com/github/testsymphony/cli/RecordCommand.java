@@ -118,7 +118,7 @@ public class RecordCommand implements Runnable {
             if (ch == 's' || ch == 'S') {
                 if (interactiveConfirmation.confirmStop()) {
                     TSRecordingDTO recordingDTO = client.stopRecording(config.getAppId(), testId);
-                    
+
                     Optional.ofNullable(recordingDTO)
                         .map(r -> r.getWiremock())
                         .map(w -> w.getStubMappings())

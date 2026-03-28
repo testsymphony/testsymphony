@@ -25,8 +25,8 @@ import com.github.testsymphony.client.dto.WiremockRecordingDTO;
 import jakarta.validation.constraints.NotNull;
 
 @RestController
-@RequestMapping("/testing")
-public class RestMockController {
+@RequestMapping("/testsymphony")
+public class TestSymphonyController {
 
     private final WireMock wireMockClient;
 
@@ -34,7 +34,7 @@ public class RestMockController {
 
     private final WireMockServer wireMockServer;
 
-    public RestMockController(WireMockServer wireMockServer, RecordingServeEventListener recordingServeEventListener) {
+    public TestSymphonyController(WireMockServer wireMockServer, RecordingServeEventListener recordingServeEventListener) {
         this.wireMockServer = wireMockServer;
         this.wireMockClient = new WireMock("localhost", wireMockServer.port());
         this.recordingServeEventListener = recordingServeEventListener;
@@ -59,16 +59,16 @@ public class RestMockController {
     }
 
     @PostMapping("/{appId}/record/{testId}/stop")
-    public TSRecordingDTO stopRecording(@PathVariable String appId, @PathVariable String testId) {
+    public TSRecordingDTO<StubMapping> stopRecording(@PathVariable String appId, @PathVariable String testId) {
         List<StubMapping> stubMappings = recordingServeEventListener.stopRecording(testId);
 
-        WiremockRecordingDTO wiremockDTO = new WiremockRecordingDTO(stubMappings);
-        return new TSRecordingDTO(wiremockDTO);
+        WiremockRecordingDTO<StubMapping> wiremockDTO = new WiremockRecordingDTO<>(stubMappings);
+        return new TSRecordingDTO<>(wiremockDTO);
     }
 
     @PostMapping("/{appId}/record/replay")
     public void replayRecording(@PathVariable String appId,
-            @RequestBody @NotNull TSRecordingDTO recordingDTO) {
+            @RequestBody @NotNull TSRecordingDTO<StubMapping> recordingDTO) {
         Optional.ofNullable(recordingDTO.getWiremock()).map(w -> w.getStubMappings()).ifPresent((stubMappings) -> {
             for (StubMapping stubMapping : stubMappings) {
                 this.wireMockClient.register(stubMapping);
